@@ -232,7 +232,7 @@ async function sendOrbit(text) {
     if(eventData.type==="done" && Array.isArray(eventData.messages)){messages=eventData.messages.map(item=>({role:item.role,content:item.content||""}));renderMessages();saveCurrentChat();}
     if(eventData.done)finishGeneration();
   }});
-  postToCompanion({type:"request",source:PAGE_SOURCE,message:{type:"send_message",requestId,conversationId:activeChatId,provider,model:selectedModel,text}});
+  postToCompanion({type:"send_message",requestId,conversationId:activeChatId,provider,model:selectedModel,text});
 }
 async function sendMessage() {
   if(busy)return;
