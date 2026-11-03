@@ -339,6 +339,9 @@ function init() {
   $("clear-chats").addEventListener("click",()=>{if(confirm("Clear locally saved web conversations?")){chats=[];activeChatId="";saveChats();renderHistory();}});
   $("mobile-menu").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
   window.addEventListener("message",event=>{if(event.source===window&&event.data?.source===EXTENSION_SOURCE&&event.data.type==="bridge-status"&&event.data.connected){loadOrbitState().catch(()=>{});}});
+  // Probe after registering the message listener so an already-injected
+  // Companion content script can answer even if its initial status was missed.
+  window.postMessage({source:PAGE_SOURCE,type:"bridge-probe"},location.origin);
   renderHistory();
   if(mode==="ollama"){openSettings();testOllama().catch(()=>{});}
   else {openSettings();connectCompanion().catch(()=>{});}
