@@ -25,10 +25,14 @@ The static site is hosted by GitHub Pages. Cloudflare manages the custom-domain 
 
 When the website is hosted over HTTPS, the browser treats requests to a local service as local-network access. It may ask permission before allowing the connection. Ollama must also allow the website's origin through CORS.
 
-For the production custom domain, add this exact origin to Ollama's `OLLAMA_ORIGINS` environment variable:
+To add the production website to Ollama's allowed browser origins without discarding other origins already configured for your Windows user account, run this in PowerShell:
 
 ```powershell
-[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "https://orbit.austinmcdonald.dev", "User")
+$origin = "https://orbit.austinmcdonald.dev"
+$current = [Environment]::GetEnvironmentVariable("OLLAMA_ORIGINS", "User")
+$origins = @($current -split "," | Where-Object { $_ -and $_ -ne $origin })
+$origins += $origin
+[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", ($origins -join ","), "User")
 ```
 
 Restart Ollama after changing the variable. Do not use a wildcard origin for a public deployment. If you also use the GitHub Pages preview URL or a localhost development server, add those exact origins as needed.
