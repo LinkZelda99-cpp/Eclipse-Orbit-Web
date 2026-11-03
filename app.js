@@ -124,7 +124,7 @@ function waitForCompanionBridge(timeout=2500) {
   });
 }
 function requestOrbit(type,payload={},onEvent=null) {
-  if (!orbitConnected) return Promise.reject(new Error("Eclipse Orbit Companion is not connected."));
+  if (!bridgeAvailable) return Promise.reject(new Error("Eclipse Orbit Companion is not connected."));
   const requestId=id();
   return new Promise((resolve,reject)=>{
     pending.set(requestId,{resolve,reject,onEvent});
@@ -148,6 +148,8 @@ window.addEventListener("message",event=>{
   const entry=pending.get(eventData.requestId);
   if(entry?.onEvent) entry.onEvent(eventData);
   if(eventData.type==="error" && eventData.done){
+    orbitConnected=false;
+    status(false,"Orbit desktop unavailable",eventData.error||"Start Eclipse Orbit and retry.");
     if(entry){entry.reject(new Error(eventData.error||"Orbit request failed."));pending.delete(eventData.requestId);}
     if(eventData.requestId===activeRequestId){finishGeneration();}
     return;
@@ -240,7 +242,14 @@ async function sendOrbit(text) {
   const requestId=id();activeRequestId=requestId;
   pending.set(requestId,{resolve:()=>{},reject:error=>{toast(error.message);},onEvent:eventData=>{
     if(eventData.type==="token"){const last=messages[messages.length-1];if(last?.role==="assistant")last.content+=eventData.text||"";else messages.push({role:"assistant",content:eventData.text||""});renderMarkdown(assistant.body,messages[messages.length-1].content);}
-    if(eventData.type==="done" && Array.isArray(eventData.messages)){messages=eventData.messages.map(item=>({role:item.role,content:item.content||""}));renderMessages();saveCurrentChat();}
+    if(eventData.type==="error"){toast(eventData.error||"The model request failed.");}
+    if(eventData.type==="done" && eventData.conversationId){
+      activeChatId=eventData.conversationId;
+      requestOrbit("get_chat",{conversationId:activeChatId}).then(chat=>{
+        messages=(chat.messages||[]).map(item=>({role:item.role,content:item.content||""}));
+        renderMessages();saveCurrentChat();
+      }).catch(error=>toast(error.message));
+    }
     if(eventData.done)finishGeneration();
   }});
   postToCompanion({type:"send_message",requestId,conversationId:activeChatId,provider,model:selectedModel,text});
