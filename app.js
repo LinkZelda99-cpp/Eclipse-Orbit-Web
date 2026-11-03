@@ -12,6 +12,8 @@ let chats = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
 let activeChatId = "";
 let orbitState = null;
 let orbitConnected = false;
+let bridgeAvailable = false;
+let bridgeWaiters = [];
 let busy = false;
 let controller = null;
 let selectedMemoryId = "";
@@ -114,6 +116,13 @@ function newChat() {
 function postToCompanion(message) {
   window.postMessage({source:PAGE_SOURCE,type:"request",message},location.origin);
 }
+function waitForCompanionBridge(timeout=2500) {
+  if(bridgeAvailable)return Promise.resolve();
+  return new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(new Error("The Companion extension was not detected on this page.")),timeout);
+    bridgeWaiters.push(()=>{clearTimeout(timer);resolve();});
+  });
+}
 function requestOrbit(type,payload={},onEvent=null) {
   if (!orbitConnected) return Promise.reject(new Error("Eclipse Orbit Companion is not connected."));
   const requestId=id();
@@ -126,7 +135,9 @@ window.addEventListener("message",event=>{
   if(event.source!==window || event.origin!==location.origin || event.data?.source!==EXTENSION_SOURCE)return;
   const data=event.data;
   if(data.type==="bridge-status"){
-    orbitConnected=Boolean(data.connected);
+    bridgeAvailable=Boolean(data.connected);
+    orbitConnected=bridgeAvailable;
+    if(bridgeAvailable){for(const resolve of bridgeWaiters.splice(0))resolve();}
     if(!orbitConnected){status(false,"Companion unavailable",data.error||"Check the Edge extension and desktop app.");}
     else status(true,"Orbit Companion ready","Shared desktop connection available.");
     $("memory-sync").classList.toggle("online",orbitConnected);
@@ -251,8 +262,7 @@ async function stopGeneration() {
 async function connectCompanion() {
   mode="companion";localStorage.setItem("orbit-web-mode",mode);
   $("companion-test-status").textContent="Waiting for the Companion extension…";
-  
-  try {await loadOrbitState();$("companion-test-status").textContent="Connected";toast("Connected to Eclipse Orbit.");}
+  try {await waitForCompanionBridge();await loadOrbitState();$("companion-test-status").textContent="Connected";toast("Connected to Eclipse Orbit.");}
   catch(error){$("companion-test-status").textContent=error.message;status(false,"Orbit not available","Install the Companion extension and start Eclipse Orbit desktop.");throw error;}
 }
 async function testOllama() {
@@ -286,12 +296,12 @@ async function saveMemory() {
   try {
     const result=await requestOrbit("memory_save",{memory:{id:selectedMemoryId,title:$("memory-title").value,category:$("memory-category").value,content:$("memory-content").value,importance:3,pinned:false,source:"user"}});
     if(!result.ok)throw new Error(result.error||"Could not save memory.");
-    selectedMemoryId=result.memory.id;toast("Shared memory saved.");openMemory();
+    selectedMemoryId=result.memory.id;toast("Shared memory saved.");$("memory-dialog").close();openMemory();
   } catch(error){toast(error.message);}
 }
 async function deleteMemory() {
   if(!selectedMemoryId)return;
-  try {await requestOrbit("memory_delete",{id:selectedMemoryId});selectedMemoryId="";$("memory-title").value="";$("memory-category").value="";$("memory-content").value="";toast("Memory deleted.");openMemory();}
+  try {await requestOrbit("memory_delete",{id:selectedMemoryId});selectedMemoryId="";$("memory-title").value="";$("memory-category").value="";$("memory-content").value="";toast("Memory deleted.");$("memory-dialog").close();openMemory();}
   catch(error){toast(error.message);}
 }
 function init() {
@@ -309,7 +319,7 @@ function init() {
   $("test-companion").addEventListener("click",()=>connectCompanion().catch(()=>{}));
   $("model-select").addEventListener("change",async()=>{if(mode==="ollama"){model=$("model-select").value;localStorage.setItem("orbit-web-model",model);}else if(orbitConnected){const [provider,selectedModel]=JSON.parse($("model-select").value);try{await requestOrbit("select_model",{provider,model:selectedModel});}catch(error){toast(error.message);}}});
   $("memory-button").addEventListener("click",openMemory);$("close-memory").addEventListener("click",()=>$("memory-dialog").close());
-  $("memory-new").addEventListener("click",()=>{selectedMemoryId="";$("memory-title").value="";$("memory-category").value="general";$("memory-content").value="";});
+  $("memory-new").addEventListener("click",()=>{selectedMemoryId="";$("memory-title").value="";$("memory-category").value="general";$("memory-content").value="";$("memory-delete").disabled=true;});
   $("memory-save").addEventListener("click",saveMemory);$("memory-delete").addEventListener("click",deleteMemory);
   $("clear-chats").addEventListener("click",()=>{if(confirm("Clear locally saved web conversations?")){chats=[];activeChatId="";saveChats();renderHistory();}});
   $("mobile-menu").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
