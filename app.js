@@ -42,7 +42,7 @@ function saveCurrentChat() {
 }
 function renderHistory() {
   const host = $("chat-history"); host.replaceChildren();
-  const source = mode === "companion" && orbitState?.chats?.length ? orbitState.chats : chats;
+  const source = mode === "companion" ? (orbitState?.chats || []) : chats;
   for (const chat of source.slice(0, 40)) {
     const button = document.createElement("button");
     button.className = "history-chat" + (chat.id === activeChatId ? " active" : "");
