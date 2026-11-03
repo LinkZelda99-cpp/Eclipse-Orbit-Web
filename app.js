@@ -138,8 +138,13 @@ window.addEventListener("message",event=>{
     bridgeAvailable=Boolean(data.connected);
     orbitConnected=bridgeAvailable;
     if(bridgeAvailable){for(const resolve of bridgeWaiters.splice(0))resolve();}
-    if(!orbitConnected){status(false,"Companion unavailable",data.error||"Check the Edge extension and desktop app.");}
-    else status(true,"Orbit Companion ready","Shared desktop connection available.");
+    if(!orbitConnected){
+      const error=new Error(data.error||"The Companion extension disconnected.");
+      for(const [,entry] of pending)entry.reject(error);
+      pending.clear();
+      if(busy)finishGeneration();
+      status(false,"Companion unavailable",error.message);
+    } else status(true,"Orbit Companion ready","Shared desktop connection available.");
     $("memory-sync").classList.toggle("online",orbitConnected);
     return;
   }
@@ -242,7 +247,7 @@ async function sendOrbit(text) {
   const requestId=id();activeRequestId=requestId;
   pending.set(requestId,{resolve:()=>{},reject:error=>{toast(error.message);},onEvent:eventData=>{
     if(eventData.type==="token"){const last=messages[messages.length-1];if(last?.role==="assistant")last.content+=eventData.text||"";else messages.push({role:"assistant",content:eventData.text||""});renderMarkdown(assistant.body,messages[messages.length-1].content);}
-    if(eventData.type==="error"){toast(eventData.error||"The model request failed.");}
+    if(eventData.type==="error" && !eventData.done){toast(eventData.error||"The model request failed.");}
     if(eventData.type==="done" && eventData.conversationId){
       activeChatId=eventData.conversationId;
       requestOrbit("get_chat",{conversationId:activeChatId}).then(chat=>{
@@ -298,7 +303,7 @@ async function openMemory() {
   if(mode!=="companion"||!orbitConnected){toast("Connect to Eclipse Orbit Companion to access shared memory.");return;}
   try {
     const result=await requestOrbit("memory_list");const list=$("memory-list");list.replaceChildren();
-    for(const item of result.memories||[]){const button=document.createElement("button");button.className="memory-item";const title=document.createElement("strong");title.textContent=(item.pinned?"◆ ":"")+(item.title||"Untitled");const category=document.createElement("small");category.textContent=item.category||"general";button.append(title,category);button.addEventListener("click",()=>{selectedMemoryId=item.id;$("memory-title").value=item.title||"";$("memory-category").value=item.category||"";$("memory-content").value=item.content||"";});list.append(button);}
+    for(const item of result.memories||[]){const button=document.createElement("button");button.className="memory-item";const title=document.createElement("strong");title.textContent=(item.pinned?"◆ ":"")+(item.title||"Untitled");const category=document.createElement("small");category.textContent=item.category||"general";button.append(title,category);button.addEventListener("click",()=>{selectedMemoryId=item.id;$("memory-title").value=item.title||"";$("memory-category").value=item.category||"";$("memory-content").value=item.content||"";$("memory-delete").disabled=false;});list.append(button);}
     $("memory-delete").disabled=!selectedMemoryId;$("memory-dialog").showModal();
   } catch(error){toast(error.message);}
 }
