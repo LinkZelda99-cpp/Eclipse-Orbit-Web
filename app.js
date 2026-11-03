@@ -251,7 +251,7 @@ async function stopGeneration() {
 async function connectCompanion() {
   mode="companion";localStorage.setItem("orbit-web-mode",mode);
   $("companion-test-status").textContent="Waiting for the Companion extension…";
-  postToCompanion({type:"ping"});
+  
   try {await loadOrbitState();$("companion-test-status").textContent="Connected";toast("Connected to Eclipse Orbit.");}
   catch(error){$("companion-test-status").textContent=error.message;status(false,"Orbit not available","Install the Companion extension and start Eclipse Orbit desktop.");throw error;}
 }
