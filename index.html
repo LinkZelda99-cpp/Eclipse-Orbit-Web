@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="Eclipse Orbit Web — private, local-first AI chat in your browser.">
+  <title>Eclipse Orbit Web</title>
+  <link rel="icon" href="assets/orbit.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><span></span></div>
+        <div><strong>ECLIPSE ORBIT</strong><small>WEB</small></div>
+      </div>
+      <button class="new-chat" id="new-chat"><span>＋</span> New chat</button>
+      <div class="sidebar-label">WORKSPACE</div>
+      <button class="nav-item active"><span class="nav-icon">◈</span> Chat</button>
+      <button class="nav-item" id="memory-button"><span class="nav-icon">⌘</span> Persistent memory <span class="sync-dot" id="memory-sync"></span></button>
+      <div class="history-heading"><span>RECENT CHATS</span><button id="clear-chats" title="Clear local chat history">···</button></div>
+      <div class="chat-history" id="chat-history"></div>
+      <div class="sidebar-bottom">
+        <div class="connection-card">
+          <div class="connection-top"><span class="status-dot" id="status-dot"></span><strong id="connection-label">Local AI not connected</strong></div>
+          <p id="connection-detail">Connect to Ollama or Eclipse Orbit Companion.</p>
+          <button class="text-button" id="open-settings">Connection settings <span>↗</span></button>
+        </div>
+        <div class="sidebar-footer"><span>LOCAL-FIRST BY DESIGN</span><span>v0.1.0</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Open sidebar">☰</button>
+        <div class="topbar-title"><span class="eyebrow">YOUR WORKSPACE</span><strong id="chat-title">New conversation</strong></div>
+        <div class="topbar-actions">
+          <span class="mode-pill" id="mode-pill">STANDALONE</span>
+          <button class="icon-button" id="settings-button" title="Settings">⚙</button>
+        </div>
+      </header>
+
+      <section class="chat-area" id="chat-area">
+        <div class="welcome" id="welcome">
+          <div class="welcome-orbit"><i></i><b></b></div>
+          <div class="eyebrow">INTELLIGENCE, ON YOUR TERMS</div>
+          <h1>Your Orbit.<br><span>Everywhere.</span></h1>
+          <p>Chat with a local model directly from your browser, or connect to Eclipse Orbit for the shared desktop experience.</p>
+          <div class="welcome-actions">
+            <button class="primary-button" id="welcome-connect">Connect local AI <span>→</span></button>
+            <button class="secondary-button" id="welcome-companion">Connect Orbit Companion</button>
+          </div>
+          <div class="privacy-line"><span>◆</span> No cloud account. No subscription. No prompt relay.</div>
+        </div>
+        <div class="messages" id="messages" aria-live="polite"></div>
+      </section>
+
+      <footer class="composer-wrap">
+        <div class="composer">
+          <textarea id="prompt" rows="1" placeholder="Message your local model…" aria-label="Message"></textarea>
+          <div class="composer-bottom">
+            <div class="composer-meta"><span class="model-indicator"></span><select id="model-select" aria-label="Model"><option value="">Connect a model</option></select><span class="meta-divider"></span><span id="privacy-label">Runs on your device</span></div>
+            <div class="composer-actions"><button class="stop-button" id="stop-button" hidden>Stop</button><button class="send-button" id="send-button" aria-label="Send message">↑</button></div>
+          </div>
+        </div>
+        <p class="disclaimer" id="disclaimer">Your prompts go directly to the selected local provider. Nothing is sent through Eclipse Orbit's servers.</p>
+      </footer>
+    </main>
+  </div>
+
+  <dialog class="settings-dialog" id="settings-dialog">
+    <div class="dialog-head"><div><div class="eyebrow">CONFIGURATION</div><h2>Connection settings</h2></div><button class="icon-button" id="close-settings" aria-label="Close">×</button></div>
+    <div class="settings-content">
+      <div class="setting-section">
+        <h3>Choose your connection</h3>
+        <label class="connection-option"><input type="radio" name="connection-mode" value="ollama" checked><span><strong>Standalone local AI</strong><small>Connect directly to Ollama. Eclipse Orbit desktop does not need to be open.</small></span></label>
+        <label class="connection-option"><input type="radio" name="connection-mode" value="companion"><span><strong>Eclipse Orbit Companion</strong><small>Use the same native-messaging bridge as the Edge Companion. Shares Orbit chats, models, and persistent memory. Desktop app must be running.</small></span></label>
+      </div>
+      <div class="setting-section" id="ollama-settings">
+        <h3>Ollama connection</h3>
+        <label class="field-label" for="ollama-endpoint">Server address</label>
+        <input class="text-input" id="ollama-endpoint" value="http://127.0.0.1:11434" spellcheck="false">
+        <p class="field-help">Default Ollama address. Your browser may ask permission to access this local service.</p>
+        <div class="setting-row"><button class="secondary-button" id="test-ollama">Test connection</button><span id="ollama-test-status" class="field-status"></span></div>
+        <p class="field-help">For the hosted website, Ollama may need this site's origin added to <code>OLLAMA_ORIGINS</code>. See the setup guide in the repository.</p>
+      </div>
+      <div class="setting-section" id="companion-settings" hidden>
+        <h3>Companion connection</h3>
+        <p class="field-help">Install or reload Eclipse Orbit Companion in Edge, then make sure Eclipse Orbit desktop is running. This website communicates through the extension; it never tries to access native messaging directly.</p>
+        <div class="setting-row"><button class="secondary-button" id="test-companion">Connect to Orbit</button><span id="companion-test-status" class="field-status"></span></div>
+      </div>
+      <div class="setting-section">
+        <h3>Privacy</h3>
+        <p class="field-help">Standalone mode sends prompts only to the local endpoint you configure. Companion mode sends requests to the local Eclipse Orbit desktop app through the installed extension. This site has no account system or hosted inference backend.</p>
+      </div>
+    </div>
+    <div class="dialog-footer"><button class="secondary-button" id="cancel-settings">Close</button><button class="primary-button" id="save-settings">Save settings</button></div>
+  </dialog>
+
+  <dialog class="memory-dialog" id="memory-dialog">
+    <div class="dialog-head"><div><div class="eyebrow">SHARED CONTEXT</div><h2>Persistent memory</h2></div><button class="icon-button" id="close-memory" aria-label="Close">×</button></div>
+    <p class="field-help memory-note">These are the same memories used by Eclipse Orbit desktop Chat, Coding Agent, and Companion. The desktop connection is required to view and edit shared memory.</p>
+    <div class="memory-list" id="memory-list"></div>
+    <div class="memory-editor">
+      <input class="text-input" id="memory-title" placeholder="Memory title">
+      <input class="text-input" id="memory-category" placeholder="Category">
+      <textarea class="text-input" id="memory-content" rows="4" placeholder="What should Orbit remember?"></textarea>
+      <div class="memory-editor-actions"><button class="secondary-button" id="memory-new">New</button><button class="secondary-button" id="memory-delete">Delete</button><button class="primary-button" id="memory-save">Save memory</button></div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
