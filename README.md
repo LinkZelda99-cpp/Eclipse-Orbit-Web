@@ -7,6 +7,14 @@ A browser-based member of the Eclipse Orbit ecosystem. The web client has two co
 
 There is no hosted inference backend, account system, subscription, or prompt relay in this repository.
 
+## Production website
+
+Eclipse Orbit Web is published at:
+
+**https://orbit.austinmcdonald.dev**
+
+The static site is hosted by GitHub Pages. Cloudflare manages the custom-domain DNS record. The Companion extension recognizes this exact HTTPS origin.
+
 ## Standalone Ollama mode
 
 1. Install and start Ollama on the same computer as the browser.
@@ -17,13 +25,13 @@ There is no hosted inference backend, account system, subscription, or prompt re
 
 When the website is hosted over HTTPS, the browser treats requests to a local service as local-network access. It may ask permission before allowing the connection. Ollama must also allow the website's origin through CORS.
 
-For GitHub Pages, add the exact published origin to Ollama's `OLLAMA_ORIGINS` environment variable, for example:
+For the production custom domain, add this exact origin to Ollama's `OLLAMA_ORIGINS` environment variable:
 
 ```powershell
-[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "https://linkzelda99-cpp.github.io", "User")
+[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "https://orbit.austinmcdonald.dev", "User")
 ```
 
-Restart Ollama after changing the variable. If the repository is later served from a custom domain, add that origin instead. Do not use a wildcard origin for a public deployment. Ollama's default local origins do not automatically include a GitHub Pages website.
+Restart Ollama after changing the variable. Do not use a wildcard origin for a public deployment. If you also use the GitHub Pages preview URL or a localhost development server, add those exact origins as needed.
 
 Ollama's official CORS guidance: https://github.com/ollama/ollama/blob/main/docs/faq.mdx
 
