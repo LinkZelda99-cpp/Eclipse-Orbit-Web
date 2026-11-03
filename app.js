@@ -247,7 +247,8 @@ async function sendOrbit(text) {
       activeChatId=eventData.conversationId;
       requestOrbit("get_chat",{conversationId:activeChatId}).then(chat=>{
         messages=(chat.messages||[]).map(item=>({role:item.role,content:item.content||""}));
-        renderMessages();saveCurrentChat();
+        $("chat-title").textContent=chat.title||"Conversation";
+        renderMessages();renderHistory();
       }).catch(error=>toast(error.message));
     }
     if(eventData.done)finishGeneration();
