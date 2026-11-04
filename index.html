@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell" id="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <div class="brand-mark"><span></span></div>
@@ -59,9 +59,11 @@
 
       <footer class="composer-wrap">
         <div class="composer">
-          <div class="markdown-toolbar" role="toolbar" aria-label="Markdown formatting">
+          <div class="composer-mode-tabs"><button type="button" class="composer-mode active" id="write-mode">Write</button><button type="button" class="composer-mode" id="preview-mode">Preview</button></div>
+          <details class="format-menu"><summary>Formatting</summary><div class="markdown-toolbar" role="toolbar" aria-label="Markdown formatting">
             <button type="button" data-md="bold" title="Bold"><strong>B</strong></button><button type="button" data-md="italic" title="Italic"><em>I</em></button><button type="button" data-md="strike" title="Strikethrough"><s>S</s></button><button type="button" data-md="heading" title="Heading">H</button><button type="button" data-md="link" title="Link">Link</button><button type="button" data-md="code" title="Inline code">&lt;/&gt;</button><button type="button" data-md="codeblock" title="Code block">Code block</button><button type="button" data-md="bullet" title="Bulleted list">• List</button><button type="button" data-md="number" title="Numbered list">1. List</button><button type="button" data-md="quote" title="Quote">Quote</button>
-          </div>
+          </div></details>
+          <div id="composer-preview" class="composer-preview message-body" hidden></div>
           <textarea id="prompt" rows="4" placeholder="Message your local model… Markdown supported · Enter to send, Shift+Enter for a new line" aria-label="Message"></textarea>
           <div class="composer-bottom">
             <div class="composer-meta"><span class="model-indicator"></span><select id="model-select" aria-label="Model"><option value="">Connect a model</option></select><span class="meta-divider"></span><span id="privacy-label">Runs on your device</span></div>

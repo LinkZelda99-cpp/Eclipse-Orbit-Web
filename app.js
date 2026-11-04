@@ -357,6 +357,9 @@ function setupMarkdownToolbar(){
   document.querySelectorAll("[data-md]").forEach(button=>button.addEventListener("click",()=>{const format=formats[button.dataset.md];if(format)insertMarkdown(...format);}));
 }
   setupMarkdownToolbar();
+  const promptField=$("prompt"),previewPane=$("composer-preview"),writeMode=$("write-mode"),previewMode=$("preview-mode");
+  const setComposerMode=preview=>{promptField.hidden=preview;previewPane.hidden=!preview;writeMode.classList.toggle("active",!preview);previewMode.classList.toggle("active",preview);if(preview)renderMarkdown(previewPane,promptField.value);else promptField.focus();};
+  promptField.addEventListener("input",()=>{if(!previewPane.hidden)renderMarkdown(previewPane,promptField.value);});writeMode.addEventListener("click",()=>setComposerMode(false));previewMode.addEventListener("click",()=>setComposerMode(true));
     $("prompt").addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();sendMessage();}});
   $("prompt").style.height="116px";
   $("open-settings").addEventListener("click",openSettings);$("settings-button").addEventListener("click",openSettings);
@@ -371,7 +374,7 @@ function setupMarkdownToolbar(){
   $("memory-new").addEventListener("click",()=>{selectedMemoryId="";$("memory-title").value="";$("memory-category").value="general";$("memory-content").value="";$("memory-delete").disabled=true;});
   $("memory-save").addEventListener("click",saveMemory);$("memory-delete").addEventListener("click",deleteMemory);
   $("clear-chats").addEventListener("click",()=>{if(confirm("Clear locally saved web conversations?")){chats=[];activeChatId="";saveChats();renderHistory();}});
-  $("mobile-menu").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
+  $("mobile-menu").addEventListener("click",()=>{if(window.matchMedia("(max-width:760px)").matches){$("sidebar").classList.toggle("open");}else{$("app-shell").classList.toggle("sidebar-collapsed");}});
   window.addEventListener("message",event=>{if(event.source===window&&event.data?.source===EXTENSION_SOURCE&&event.data.type==="bridge-status"&&event.data.connected){loadOrbitState().catch(()=>{});}});
   // Probe after registering the message listener so an already-injected
   // Companion content script can answer even if its initial status was missed.
