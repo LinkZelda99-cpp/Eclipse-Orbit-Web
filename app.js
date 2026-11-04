@@ -357,6 +357,8 @@ function setupMarkdownToolbar(){
   document.querySelectorAll("[data-md]").forEach(button=>button.addEventListener("click",()=>{const format=formats[button.dataset.md];if(format)insertMarkdown(...format);}));
 }
   setupMarkdownToolbar();
+  const composerOptions=$("composer-options");
+  composerOptions.addEventListener("click",event=>{if(event.target.closest("button"))composerOptions.open=false;});
   const promptField=$("prompt"),previewPane=$("composer-preview"),writeMode=$("write-mode"),previewMode=$("preview-mode");
   const setComposerMode=preview=>{promptField.hidden=preview;previewPane.hidden=!preview;writeMode.classList.toggle("active",!preview);previewMode.classList.toggle("active",preview);if(preview)renderMarkdown(previewPane,promptField.value);else promptField.focus();};
   promptField.addEventListener("input",()=>{if(!previewPane.hidden)renderMarkdown(previewPane,promptField.value);});writeMode.addEventListener("click",()=>setComposerMode(false));previewMode.addEventListener("click",()=>setComposerMode(true));
