@@ -345,8 +345,20 @@ function init() {
   $("new-chat").addEventListener("click",newChat);
   $("send-button").addEventListener("click",sendMessage);
   $("stop-button").addEventListener("click",stopGeneration);
-  $("prompt").addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();sendMessage();}});
-  $("prompt").addEventListener("input",()=>{$("prompt").style.height="auto";$("prompt").style.height=Math.min($("prompt").scrollHeight,180)+"px";});
+function insertMarkdown(prefix,suffix,placeholder){
+  const field=$("prompt"),start=field.selectionStart,end=field.selectionEnd;
+  const selected=field.value.slice(start,end),value=selected||placeholder;
+  field.setRangeText(prefix+value+suffix,start,end,"end");
+  field.focus();const cursor=start+prefix.length+value.length;field.setSelectionRange(cursor,cursor);
+}
+function setupMarkdownToolbar(){
+  const ticks=String.fromCharCode(96);
+  const formats={bold:["**","**","bold text"],italic:["*","*","italic text"],strike:["~~","~~","strikethrough"],heading:["## ","","Heading"],link:["[","](https://example.com)","link text"],code:[ticks,ticks,"code"],codeblock:["\\n\\n"+ticks.repeat(3)+"\\n","\\n"+ticks.repeat(3),"code"],bullet:["- ","","list item"],number:["1. ","","list item"],quote:["> ","","quoted text"]};
+  document.querySelectorAll("[data-md]").forEach(button=>button.addEventListener("click",()=>{const format=formats[button.dataset.md];if(format)insertMarkdown(...format);}));
+}
+  setupMarkdownToolbar();
+    $("prompt").addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();sendMessage();}});
+  $("prompt").style.height="116px";
   $("open-settings").addEventListener("click",openSettings);$("settings-button").addEventListener("click",openSettings);
   $("welcome-connect").addEventListener("click",()=>{mode="ollama";openSettings();});
   $("welcome-companion").addEventListener("click",()=>{mode="companion";openSettings();});

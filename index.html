@@ -59,7 +59,10 @@
 
       <footer class="composer-wrap">
         <div class="composer">
-          <textarea id="prompt" rows="1" placeholder="Message your local model…" aria-label="Message"></textarea>
+          <div class="markdown-toolbar" role="toolbar" aria-label="Markdown formatting">
+            <button type="button" data-md="bold" title="Bold"><strong>B</strong></button><button type="button" data-md="italic" title="Italic"><em>I</em></button><button type="button" data-md="strike" title="Strikethrough"><s>S</s></button><button type="button" data-md="heading" title="Heading">H</button><button type="button" data-md="link" title="Link">Link</button><button type="button" data-md="code" title="Inline code">&lt;/&gt;</button><button type="button" data-md="codeblock" title="Code block">Code block</button><button type="button" data-md="bullet" title="Bulleted list">• List</button><button type="button" data-md="number" title="Numbered list">1. List</button><button type="button" data-md="quote" title="Quote">Quote</button>
+          </div>
+          <textarea id="prompt" rows="4" placeholder="Message your local model… Markdown supported · Enter to send, Shift+Enter for a new line" aria-label="Message"></textarea>
           <div class="composer-bottom">
             <div class="composer-meta"><span class="model-indicator"></span><select id="model-select" aria-label="Model"><option value="">Connect a model</option></select><span class="meta-divider"></span><span id="privacy-label">Runs on your device</span></div>
             <div class="composer-actions"><button class="stop-button" id="stop-button" hidden>Stop</button><button class="send-button" id="send-button" aria-label="Send message">↑</button></div>
