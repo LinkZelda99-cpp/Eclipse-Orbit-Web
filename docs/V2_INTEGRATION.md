@@ -3,10 +3,10 @@
 ## Modes
 
 ### Companion mode
-Use the Desktop Knowledge Engine through the existing Edge Companion bridge. Desktop remains the owner of installed packages, synchronization, and local indexes.
+Use Desktop-owned Knowledge through Companion-connected chat. Today, Desktop can attach matching installed local Knowledge excerpts to normal chat prompts; a dedicated Knowledge search endpoint over the bridge is not implemented. Desktop remains the owner of installed packages and local indexes. Cloud synchronization is not implemented.
 
 ### Standalone mode
-May query the public Knowledge API when a cloud endpoint is configured and available. It must disclose that cloud retrieval is being used. Browser-local storage is not equivalent to Desktop's offline package library.
+May query a future public Knowledge API when a cloud endpoint is configured and available. No such service is deployed yet. It must disclose that cloud retrieval is being used. Browser-local storage is not equivalent to Desktop's offline package library.
 
 ## Contract
 
