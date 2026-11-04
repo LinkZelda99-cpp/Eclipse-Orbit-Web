@@ -374,7 +374,8 @@ function setupMarkdownToolbar(){
   $("memory-new").addEventListener("click",()=>{selectedMemoryId="";$("memory-title").value="";$("memory-category").value="general";$("memory-content").value="";$("memory-delete").disabled=true;});
   $("memory-save").addEventListener("click",saveMemory);$("memory-delete").addEventListener("click",deleteMemory);
   $("clear-chats").addEventListener("click",()=>{if(confirm("Clear locally saved web conversations?")){chats=[];activeChatId="";saveChats();renderHistory();}});
-  $("mobile-menu").addEventListener("click",()=>{if(window.matchMedia("(max-width:760px)").matches){$("sidebar").classList.toggle("open");}else{$("app-shell").classList.toggle("sidebar-collapsed");}});
+  if(localStorage.getItem("orbit-sidebar-collapsed")==="1")$("app-shell").classList.add("sidebar-collapsed");
+  $("mobile-menu").addEventListener("click",()=>{if(window.matchMedia("(max-width:760px)").matches){$("sidebar").classList.toggle("open");}else{const collapsed=$("app-shell").classList.toggle("sidebar-collapsed");localStorage.setItem("orbit-sidebar-collapsed",collapsed?"1":"0");} $("mobile-menu").setAttribute("aria-label",window.matchMedia("(max-width:760px)").matches?"Open sidebar":$("app-shell").classList.contains("sidebar-collapsed")?"Expand sidebar":"Collapse sidebar");});
   window.addEventListener("message",event=>{if(event.source===window&&event.data?.source===EXTENSION_SOURCE&&event.data.type==="bridge-status"&&event.data.connected){loadOrbitState().catch(()=>{});}});
   // Probe after registering the message listener so an already-injected
   // Companion content script can answer even if its initial status was missed.
