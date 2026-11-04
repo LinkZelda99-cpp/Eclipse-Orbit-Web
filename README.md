@@ -66,3 +66,15 @@ This is a static site. Serve the repository over localhost for development, or p
 ## Important distinction
 
 The website can run local inference without the Orbit desktop app when Ollama is running. Features that are owned by the desktop application—its shared chat store, coding agent, and persistent memory—require Companion mode and the desktop app.
+
+## Client scope and limitations
+
+The Web client is intentionally lighter than Eclipse Orbit Desktop:
+
+- Standalone mode currently connects directly to Ollama; it does not use the desktop provider catalog.
+- Standalone conversations are stored in this browser's local storage and are not synchronized to Desktop.
+- The Web composer does not currently provide file or image uploads, native vision input, voice controls, or the Coding Agent.
+- Companion mode shares desktop chat, model selection, conversation history, and persistent memory through the installed Edge extension and running desktop app.
+- Features that require the desktop application remain unavailable when using standalone mode.
+
+Do not assume that a feature available in Desktop is also available in the standalone Web client.
