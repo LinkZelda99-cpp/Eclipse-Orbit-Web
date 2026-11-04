@@ -361,7 +361,7 @@ function setupMarkdownToolbar(){
   const setComposerMode=preview=>{promptField.hidden=preview;previewPane.hidden=!preview;writeMode.classList.toggle("active",!preview);previewMode.classList.toggle("active",preview);if(preview)renderMarkdown(previewPane,promptField.value);else promptField.focus();};
   promptField.addEventListener("input",()=>{if(!previewPane.hidden)renderMarkdown(previewPane,promptField.value);});writeMode.addEventListener("click",()=>setComposerMode(false));previewMode.addEventListener("click",()=>setComposerMode(true));
     $("prompt").addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();sendMessage();}});
-  $("prompt").style.height="116px";
+
   $("open-settings").addEventListener("click",openSettings);$("settings-button").addEventListener("click",openSettings);
   $("welcome-connect").addEventListener("click",()=>{mode="ollama";openSettings();});
   $("welcome-companion").addEventListener("click",()=>{mode="companion";openSettings();});
