@@ -353,7 +353,7 @@ function insertMarkdown(prefix,suffix,placeholder){
 }
 function setupMarkdownToolbar(){
   const ticks=String.fromCharCode(96);
-  const formats={bold:["**","**","bold text"],italic:["*","*","italic text"],strike:["~~","~~","strikethrough"],heading:["## ","","Heading"],link:["[","](https://example.com)","link text"],code:[ticks,ticks,"code"],codeblock:["\\n\\n"+ticks.repeat(3)+"\\n","\\n"+ticks.repeat(3),"code"],bullet:["- ","","list item"],number:["1. ","","list item"],quote:["> ","","quoted text"]};
+  const formats={bold:["**","**","bold text"],italic:["*","*","italic text"],strike:["~~","~~","strikethrough"],heading:["## ","","Heading"],link:["[","](https://example.com)","link text"],code:[ticks,ticks,"code"],codeblock:[String.fromCharCode(10,10)+ticks.repeat(3)+String.fromCharCode(10),String.fromCharCode(10)+ticks.repeat(3),"code"],bullet:["- ","","list item"],number:["1. ","","list item"],quote:["> ","","quoted text"]};
   document.querySelectorAll("[data-md]").forEach(button=>button.addEventListener("click",()=>{const format=formats[button.dataset.md];if(format)insertMarkdown(...format);}));
 }
   setupMarkdownToolbar();
